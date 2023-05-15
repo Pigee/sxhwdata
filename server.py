@@ -61,13 +61,12 @@ async def lps_depstatus(request):
 # 接单超时事件
 @app.post("/liupanshan/jdcs")
 async def lps_jecs(request):
-    sql = """select ROW_NUMBER() over (order by t.create_date) id ,t.department,t.bz from (
+    sql = """
+select ROW_NUMBER() over (order by t.create_date) id ,t.department,t.bz from (
 select id,department,create_date,concat(create_date,',',dz_address,',',remark,',',time_accept,'派单',time_receiver,'接单') bz
- from w_1592374411638 where 
-create_date >= %s and create_date <= %s  and timestampdiff(minute,time_accept,time_receiver) >= 20
+ from w_1592374411638 where create_date >= %s and create_date <= %s  and timestampdiff(minute,time_accept,time_receiver) >= 20
 union
-select id,department,create_date,concat(create_date,',',dz_address,',',remark,',',time_accept,'派单',time_receiver,'接单') bz from nxsw_1609840221906 where 
-create_date >= %s and create_date <= %s and timestampdiff(minute,time_accept,time_receiver)>= 20) t"""
+select id,department,create_date,concat(create_date,',',dz_address,',',remark,',',time_accept,'派单',time_receiver,'接单') bz from nxsw_1609840221906 where  create_date >= %s and create_date <= %s and timestampdiff(minute,time_accept,time_receiver)>= 20) t"""
     cur_liupanshan.execute(sql,(request.json["start_date"],request.json    ["end_date"],request.json["start_date"],request.json["end_date"]))
     all_obj = cur_liupanshan.fetchall()
     return json(all_obj,ensure_ascii=False)
