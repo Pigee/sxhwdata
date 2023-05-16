@@ -29,7 +29,7 @@ cur_liupanshan = db_liupanshan.cursor(pymysql.cursors.DictCursor)
 
 app = Sanic("sxhwdata")
 
-@app.get("/")
+@app.get("/test")
 async def hello_world(request):
     return text("Hello, sx world.")
 

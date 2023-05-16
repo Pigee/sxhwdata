@@ -5,8 +5,8 @@ from sanic import Blueprint
 lpsbp = Blueprint("liupanshan_bp", url_prefix="/liupanshan")
 
 db_liupanshan = pymysql.connect( # 创建数据库连接
-    #host='192.168.1.11', # 要连接的数据库所在主机ip
-    host='192.168.199.100', # 要连接的数据库所在主机ip
+    host='192.168.1.11', # 要连接的数据库所在主机ip
+    #host='192.168.199.100', # 要连接的数据库所在主机ip
     port=3306, # 数据库端口
     database='cs_y_run_nxsw',
     user='sxadmin', # 数据库登录用户名
@@ -16,8 +16,8 @@ db_liupanshan = pymysql.connect( # 创建数据库连接
 )
 
 db_quarkcalldb54 = pymysql.connect( # 创建数据库连接
-    #host='192.168.1.11', # 要连接的数据库所在主机ip
-    host='192.168.199.100', # 要连接的数据库所在主机ip
+    host='192.168.1.11', # 要连接的数据库所在主机ip
+    #host='192.168.199.100', # 要连接的数据库所在主机ip
     port=3306, # 数据库端口
     database='quarkcalldb54',
     user='sxadmin', # 数据库登录用户名
@@ -39,7 +39,7 @@ async def test(request):
 @lpsbp.post("/callstatus")
 async def lps_callstatus(request):
     sql = "call proc_callstatus(%s,%s)"
-    cur_liupanshan.execute(sql,(request.json["start_date"],request.json    ["end_date"]))
+    cur_liupanshan.execute(sql,(request.json["start_date"],request.json["end_date"]))
     all_obj = cur_liupanshan.fetchone()
 
     sql = "select GroupNo WorkerNo,count(1) OutsideCallTotalCnt from tbcallcdr where calltime >= %s and calltime <= %s and CallInOut=1 and GroupNo = %s"
@@ -56,7 +56,7 @@ async def lps_callstatus(request):
 @lpsbp.post("/depstatus")
 async def lps_depstatus(request):
     sql = "call proc_depstatus(%s,%s)"
-    cur_liupanshan.execute(sql,(request.json["start_date"],request.json    ["end_date"]))
+    cur_liupanshan.execute(sql,(request.json["start_date"],request.json["end_date"]))
     all_obj = cur_liupanshan.fetchall()
     return json(all_obj,ensure_ascii=False)
 
@@ -69,7 +69,7 @@ select id,department,create_date,concat(create_date,',',dz_address,',',remark,',
  from w_1592374411638 where create_date >= %s and create_date <= %s  and timestampdiff(minute,time_accept,time_receiver) >= 20
 union
 select id,department,create_date,concat(create_date,',',dz_address,',',remark,',',time_accept,'派单',time_receiver,'接单') bz from nxsw_1609840221906 where  create_date >= %s and create_date <= %s and timestampdiff(minute,time_accept,time_receiver)>= 20) t"""
-    cur_liupanshan.execute(sql,(request.json["start_date"],request.json    ["end_date"],request.json["start_date"],request.json["end_date"]))
+    cur_liupanshan.execute(sql,(request.json["start_date"],request.json["end_date"],request.json["start_date"],request.json["end_date"]))
     all_obj = cur_liupanshan.fetchall()
     return json(all_obj,ensure_ascii=False)
 
@@ -80,8 +80,8 @@ async def lps_clhfcs(request):
 select id,department,create_date,concat(create_date,',',dz_address,',',remark,',',time_accept,'派单',time_receiver,'接单;','小修',person_handle,time_handle,'处理:',gd_result) bz from w_1592374411638 where create_date >= %s and create_date <= %s and
 repair = '小修'  and round((round(UNIX_TIMESTAMP(time_handle))-round(UNIX_TIMESTAMP(time_receiver)))/3600) > 8
 union
-select id,department,create_date,concat(create_date,',',dz_address,',',remark,',',time_accept,'派单',time_receiver,'接单;','小修',person_handle,time_handle,'处理:',gd_result) bz from w_1592374411638 where create_date >= %s and create_date <= %s and repair = '大修' and  round((round(UNIX_TIMESTAMP(time_handle))-round(UNIX_TIMESTAMP(time_receiver)))/3600)>24 ) t"""
-    cur_liupanshan.execute(sql,(request.json["start_date"],request.json    ["end_date"],request.json["start_date"],request.json["end_date"]))
+select id,department,create_date,concat(create_date,',',dz_address,',',remark,',',time_accept,'派单',time_receiver,'接单;','大修',person_handle,time_handle,'处理:',gd_result) bz from w_1592374411638 where create_date >= %s and create_date <= %s and repair = '大修' and  round((round(UNIX_TIMESTAMP(time_handle))-round(UNIX_TIMESTAMP(time_receiver)))/3600)>24 ) t"""
+    cur_liupanshan.execute(sql,(request.json["start_date"],request.json["end_date"],request.json["start_date"],request.json["end_date"]))
     all_obj = cur_liupanshan.fetchall()
     return json(all_obj,ensure_ascii=False)
 
@@ -90,7 +90,7 @@ select id,department,create_date,concat(create_date,',',dz_address,',',remark,',
 async def lps_jdwcl(request):
     sql = """select ROW_NUMBER() over (order by t.create_date) id ,t.department,t.bz from (
 select id,department,create_date,concat(create_date,',',dz_address,',',remark,',',time_accept,'派单',time_receiver,'接单;',person_receiver1) bz from w_1592374411638 where create_date >= %s and create_date <= %s  and time_handle is null) t """
-    cur_liupanshan.execute(sql,(request.json["start_date"],request.json    ["end_date"]))
+    cur_liupanshan.execute(sql,(request.json["start_date"],request.json["end_date"]))
     all_obj = cur_liupanshan.fetchall()
     return json(all_obj,ensure_ascii=False)
 
@@ -103,6 +103,67 @@ select id,department,create_date,concat(create_date,',',dz_address,',',remark,',
 union
 select id,department,create_date,concat(create_date,',',dz_address,',',remark,',',time_accept,'派单',time_receiver,'接单;',person_handle,time_handle,'处理:',gd_result,time_appraise,'回访;',remark_appraise,',不满意') bz from nxsw_1609840221906 where create_date >= %s and create_date <= %s and appraise = '不满意') t
  """
-    cur_liupanshan.execute(sql,(request.json["start_date"],request.json    ["end_date"],request.json["start_date"],request.json["end_date"]))
+    cur_liupanshan.execute(sql,(request.json["start_date"],request.json["end_date"],request.json["start_date"],request.json["end_date"]))
     all_obj = cur_liupanshan.fetchall()
     return json(all_obj,ensure_ascii=False)
+
+# 单位派单日报 
+@lpsbp.post("/pdday")
+async def lps_pdday(request):
+    sql = """
+ select t1.department ,t1.sl pd ,t1.sl - ifnull(t4.sl,0) asjd,ifnull(t4.sl,0) wasjd,
+ ifnull(t2.sl,0) clhf,t1.sl-ifnull(t2.sl,0) whf,
+ t6.sl hfs,t1.sl-ifnull(t3.sl,0) my, ifnull(t3.sl,0) bmy
+from (
+select a.department,count(id) sl from 
+(select department,id from w_1592374411638 where 
+create_date >= %(start_date)s and create_date <= %(end_date)s 
+union
+select department,id from  nxsw_1609840221906 where 
+create_date >= %(start_date)s and create_date <= %(end_date)s) a GROUP BY a.department) t1
+left join 
+(select a.department,count(id) sl from (select department,id from w_1592374411638 where 
+create_date >= %(start_date)s and create_date <= %(end_date)s  and time_handle is not null
+union
+select department,id from  nxsw_1609840221906 where 
+create_date >= %(start_date)s and create_date <= %(end_date)s and time_handle is not null) a GROUP BY a.department ) t2 on t1.department = t2.department
+left join 
+(select a.department,count(id) sl from (select department,id from w_1592374411638 where 
+create_date >= %(start_date)s and create_date <= %(end_date)s  and appraise ='不满意'
+union
+select department,id from  nxsw_1609840221906 where 
+create_date >= %(start_date)s and create_date <= %(end_date)s and appraise ='不满意') a GROUP BY a.department ) t3 on t1.department = t3.department
+left join 
+(select a.department,count(id) sl from (select department,id from w_1592374411638 where 
+create_date >= %(start_date)s and create_date <= %(end_date)s and ROUND((UNIX_TIMESTAMP(time_receiver)-UNIX_TIMESTAMP(time_accept))/60) > 20
+union
+select department,id from  nxsw_1609840221906 where 
+create_date >= %(start_date)s and create_date <= %(end_date)s and ROUND((UNIX_TIMESTAMP(time_receiver)-UNIX_TIMESTAMP(time_accept))/60) > 20) a GROUP BY a.department ) t4 on t1.department = t4.department
+left join 
+(select a.department,count(id) sl  from (
+select department,id from w_1592374411638 where create_date >= %(start_date)s and create_date <= %(end_date)s and repair = '小修'  and round((round(UNIX_TIMESTAMP(time_handle))-round(UNIX_TIMESTAMP(time_receiver)))/3600) > 8
+union 
+select department,id from w_1592374411638 where create_date >= %(start_date)s and create_date <= %(end_date)s and repair = '大修'  and  round((round(UNIX_TIMESTAMP(time_handle))-round(UNIX_TIMESTAMP(time_receiver)))/3600)>24 )a GROUP BY a.department ) t5 on t1.department = t5.department
+left join 
+(select a.department,count(id) sl  from (
+select department,id from w_1592374411638 where create_date >= %(start_date)s and create_date <= %(end_date)s and time_appraise is not null
+ union
+select department,id from nxsw_1609840221906 where create_date >= %(start_date)s and create_date <= %(end_date)s and time_appraise is not null
+)a GROUP BY a.department ) t6 on t1.department = t6.department
+
+ """
+    cur_liupanshan.execute(sql,{"start_date":request.json["start_date"],"end_date":request.json["end_date"]})
+    all_obj = cur_liupanshan.fetchall()
+    return json(all_obj,ensure_ascii=False)
+
+
+# 具体情况日报 
+@lpsbp.post("/dtday")
+async def lps_dtday(request):
+   sql = """
+     """
+   cur_liupanshan.execute(sql,{"start_date":request.json["start_date"],"end_date":request.json["end_date"]})
+   all_obj = cur_liupanshan.fetchall()
+   return json(all_obj,ensure_ascii=False)
+
+
