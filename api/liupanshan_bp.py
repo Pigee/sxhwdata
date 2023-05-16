@@ -5,8 +5,8 @@ from sanic import Blueprint
 lpsbp = Blueprint("liupanshan_bp", url_prefix="/liupanshan")
 
 db_liupanshan = pymysql.connect( # 创建数据库连接
-    host='192.168.1.11', # 要连接的数据库所在主机ip
-    #host='192.168.199.100', # 要连接的数据库所在主机ip
+    #host='192.168.1.11', # 要连接的数据库所在主机ip
+    host='192.168.199.100', # 要连接的数据库所在主机ip
     port=3306, # 数据库端口
     database='cs_y_run_nxsw',
     user='sxadmin', # 数据库登录用户名
@@ -16,8 +16,8 @@ db_liupanshan = pymysql.connect( # 创建数据库连接
 )
 
 db_quarkcalldb54 = pymysql.connect( # 创建数据库连接
-    host='192.168.1.11', # 要连接的数据库所在主机ip
-    #host='192.168.199.100', # 要连接的数据库所在主机ip
+    #host='192.168.1.11', # 要连接的数据库所在主机ip
+    host='192.168.199.100', # 要连接的数据库所在主机ip
     port=3306, # 数据库端口
     database='quarkcalldb54',
     user='sxadmin', # 数据库登录用户名
