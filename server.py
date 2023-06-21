@@ -1,32 +1,36 @@
 from sanic import Sanic
 from sanic.response import json
 import pymysql
+from conf.mysqldb import Lpsconn
+from conf.mysqldb import Callconn
 
+'''
 db_liupanshan = pymysql.connect( # 创建数据库连接
-    host='192.168.1.11', # 要连接的数据库所在主机ip
-    #host='192.168.199.100', # 要连接的数据库所在主机ip
+    #host='192.168.1.11', # 要连接的数据库所在主机ip
+    host='192.168.199.100', # 要连接的数据库所在主机ip
     port=3306, # 数据库端口
     database='cs_y_run_nxsw',
-    user='sxadmin', # 数据库登录用户名
-    password='sx@123', # 登录用户密码
+    user='admin', # 数据库登录用户名
+    password='123123', # 登录用户密码
     charset='utf8mb4' # 编码，注意不能写成utf-8
     #cursorclass=cursors.DictCursor
 )
 
 db_quarkcalldb = pymysql.connect( # 创建数据库连接
-    host='192.168.1.11', # 要连接的数据库所在主机ip
-    #host='192.168.199.100', # 要连接的数据库所在主机ip
+    #host='192.168.1.11', # 要连接的数据库所在主机ip
+    host='192.168.199.100', # 要连接的数据库所在主机ip
     port=3306, # 数据库端口
     database='quarkcalldb54',
-    user='sxadmin', # 数据库登录用户名
-    password='sx@123', # 登录用户密码
+    user='admin', # 数据库登录用户名
+    password='123123', # 登录用户密码
     charset='utf8mb4' # 编码，注意不能写成utf-8
     #cursorclass=cursors.DictCursor
 )
-
-
-cur_quarkcalldb = db_quarkcalldb.cursor(pymysql.cursors.DictCursor)
-cur_liupanshan = db_liupanshan.cursor(pymysql.cursors.DictCursor)
+'''
+calldb = Callconn()
+lpsdb = Lpsconn()
+cur_quarkcalldb = calldb.cursor(pymysql.cursors.DictCursor)
+cur_liupanshan = lpsdb.cursor(pymysql.cursors.DictCursor)
 #cur_quarkcalldb = db_quarkcalldb.cursor()
 
 app = Sanic("sxhwdata")

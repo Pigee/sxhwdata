@@ -1,34 +1,16 @@
 from sanic.response import json
 import pymysql
 from sanic import Blueprint
+from conf.mysqldb import Csconn
+from conf.mysqldb import Callconn
 
 wuzhongbp = Blueprint("wuzhong_bp", url_prefix="/wuzhong")
 
-db_wuzhong = pymysql.connect( # 创建数据库连接
-    host='192.168.1.11', # 要连接的数据库所在主机ip
-    # host='192.168.199.100', # 要连接的数据库所在主机ip
-    port=3306, # 数据库端口
-    database='cs_y_run_nxsw_wuzhong',
-    user='sxadmin', # 数据库登录用户名
-    p           33assword='sx@123', # 登录用户密码
-    charset='utf8mb4' # 编码，注意不能写成utf-8
-    #cursorclass=cursors.DictCursor
-)
-
-db_quarkcalldb54 = pymysql.connect( # 创建数据库连接
-    host='192.168.1.11', # 要连接的数据库所在主机ip
-    # host='192.168.199.100', # 要连接的数据库所在主机ip
-    port=3306, # 数据库端口
-    database='quarkcalldb54',
-    user='sxadmin', # 数据库登录用户名
-    password='sx@123', # 登录用户密码
-    charset='utf8mb4' # 编码，注意不能写成utf-8
-    #cursorclass=cursors.DictCursor
-)
-
-
-cur_quarkcalldb = db_quarkcalldb54.cursor(pymysql.cursors.DictCursor)
-cur_wuzhong = db_wuzhong.cursor(pymysql.cursors.DictCursor)
+calldb = Callconn()
+csdb = Csconn()
+csdb.select_db("cs_y_run_nxsw_wuzhong")
+cur_quarkcalldb = calldb.cursor(pymysql.cursors.DictCursor)
+cur_wuzhong = csdb.cursor(pymysql.cursors.DictCursor)
 #cur_quarkcalldb = db_quarkcalldb.cursor()
 
 @wuzhongbp.get("/test")
@@ -39,12 +21,12 @@ async def test(request):
 @wuzhongbp.post("/callstatus")
 async def lps_callstatus(request):
     sql = """
-    select t1.sl pdsl,
-round((t1.sl-ifnull(t2.sl,0))/t1.sl*100,2) zxl,
-round((t1.sl-ifnull(t3.sl,0)-ifnull(t10.sl,0))/t1.sl*100,2) jsl,
-round((t1.sl-ifnull(t5.sl,0))/t1.sl*100,2) hfmyl,
-t6.sl gzbx,round(t8.sl/t6.sl*100,2) gzbxwjl,
-t7.sl ywzx,round(t9.sl/t7.sl*100,2) ywzxwjl from (
+select t1.sl pdsl,
+ifnull(round((t1.sl-ifnull(t2.sl,0))/t1.sl*100,2),0) zxl,
+ifnull(round((t1.sl-ifnull(t3.sl,0)-ifnull(t10.sl,0))/t1.sl*100,2),0) jsl,
+ifnull(round((t1.sl-ifnull(t5.sl,0))/t1.sl*100,2),0) hfmyl,
+ifnull(t6.sl,0) gzbx,ifnull(round(t8.sl/t6.sl*100,2),0) gzbxwjl,
+ifnull(t7.sl,0) ywzx,ifnull(round(t9.sl/t7.sl*100,2),0) ywzxwjl from (
 select 1 id,count(a.id) sl from (select id from w_1592374411638 where create_date >= %(start_date)s and create_date <= %(end_date)s
 union
 select id from  nxsw_1612146673154 where create_date >= %(start_date)s and create_date <= %(end_date)s )a) t1
@@ -86,13 +68,21 @@ join
     sql = "select GroupNo WorkerNo,count(1) OutsideCallTotalCnt from tbcallcdr where calltime >= %s and calltime <= %s and CallInOut=1 and GroupNo = %s"
     cur_quarkcalldb.execute(sql,(request.json["start_date"],request.json["end_date"],request.json["group_no"]))
     fd_obj = cur_quarkcalldb.fetchone()
-    all_obj["gzlld"] = fd_obj["OutsideCallTotalCnt"]
+    all_obj["gslld"] = fd_obj["OutsideCallTotalCnt"]
     all_obj["jscl"] = fd_obj["OutsideCallTotalCnt"] - all_obj["pdsl"]
     all_obj["jsl"] = str(all_obj["jsl"]) + "%"
     all_obj["zxl"] = str(all_obj["zxl"]) + "%"
     all_obj["hfmyl"] = str(all_obj["hfmyl"]) + "%"
     all_obj["gzbxwjl"] = str(all_obj["gzbxwjl"]) + "%"
     all_obj["ywzxwjl"] = str(all_obj["ywzxwjl"]) + "%"
+    all_obj["jbjy"] = 0
+    all_obj["jbjywjl"] = "0%"
+    all_obj["tssl"] = 0
+    all_obj["tsslwjl"] = "0%"
+    all_obj["ysxh"] = 0
+    all_obj["ysxhwjl"] = "0%"
+    all_obj["bzsq"] = 0
+    all_obj["bzsqwjl"] = "0%"
     return json(all_obj,ensure_ascii=False)
 
 # 各单位派单处理情况
@@ -255,3 +245,26 @@ select work_no,'信息查询' wtype,concat(create_date,'')create_date,hm,phone,d
    all_obj = cur_wuzhong.fetchall()
    return json(all_obj,ensure_ascii=False)
 
+# 个人报表 返回部门用户列表
+@wuzhongbp.get("/deptuser")
+async def lps_deptuser(request):
+   sql = """
+     select  t2.userid,t2.name username,t3.name deptname from cs_base_depart_user t1
+join cs_base_user t2 on t1.userid = t2.userid
+join cs_base_department t3 on t1.departmentid = t3.departmentid
+where t3.parentid = '1'
+order by deptname
+     """
+   cur_liupanshan.execute(sql)
+   all_obj = cur_liupanshan.fetchall()
+   return json(all_obj,ensure_ascii=False)
+
+# 个人报表
+@wuzhongbp.post("/usergdzsl")
+async def lps_usergdzsl(request):
+   sql = """
+       SELECT count(1) gdzsl FROM wf_hist_task where  operator = %(userid)s and create_Time >= %(start_date)s and create_Time < %(end_date)s
+     """
+   cur_liupanshan.execute(sql,{"userid":request.json["userid"],"start_date":request.json["start_date"],"end_date":request.json["end_date"]})
+   all_obj = cur_liupanshan.fetchall()
+   return json(all_obj,ensure_ascii=False)
