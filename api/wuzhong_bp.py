@@ -6,12 +6,12 @@ from conf.mysqldb import Callconn
 
 wuzhongbp = Blueprint("wuzhong_bp", url_prefix="/wuzhong")
 
-calldb = Callconn()
+#calldb = Callconn()
 csdb = Csconn()
 csdb.select_db("cs_y_run_nxsw_wuzhong")
-cur_quarkcalldb = calldb.cursor(pymysql.cursors.DictCursor)
+#cur_quarkcalldb = Callconn()
+#cur_quarkcalldb = calldb.cursor(pymysql.cursors.DictCursor)
 cur_wuzhong = csdb.cursor(pymysql.cursors.DictCursor)
-#cur_quarkcalldb = db_quarkcalldb.cursor()
 
 @wuzhongbp.get("/test")
 async def test(request):
@@ -66,6 +66,7 @@ join
     all_obj = cur_wuzhong.fetchone()
 
     sql = "select GroupNo WorkerNo,count(1) OutsideCallTotalCnt from tbcallcdr where calltime >= %s and calltime <= %s and CallInOut=1 and GroupNo = %s"
+    cur_quarkcalldb=Callconn()
     cur_quarkcalldb.execute(sql,(request.json["start_date"],request.json["end_date"],request.json["group_no"]))
     fd_obj = cur_quarkcalldb.fetchone()
     all_obj["gslld"] = fd_obj["OutsideCallTotalCnt"]
@@ -255,8 +256,8 @@ join cs_base_department t3 on t1.departmentid = t3.departmentid
 where t3.parentid = '1'
 order by deptname
      """
-   cur_liupanshan.execute(sql)
-   all_obj = cur_liupanshan.fetchall()
+   cur_wuzhong.execute(sql)
+   all_obj = cur_wuzhong.fetchall()
    return json(all_obj,ensure_ascii=False)
 
 # 个人报表
@@ -265,6 +266,6 @@ async def lps_usergdzsl(request):
    sql = """
        SELECT count(1) gdzsl FROM wf_hist_task where  operator = %(userid)s and create_Time >= %(start_date)s and create_Time < %(end_date)s
      """
-   cur_liupanshan.execute(sql,{"userid":request.json["userid"],"start_date":request.json["start_date"],"end_date":request.json["end_date"]})
-   all_obj = cur_liupanshan.fetchall()
+   cur_wuzhong.execute(sql,{"userid":request.json["userid"],"start_date":request.json["start_date"],"end_date":request.json["end_date"]})
+   all_obj = cur_wuzhong.fetchall()
    return json(all_obj,ensure_ascii=False)
