@@ -14,6 +14,7 @@ def getCallcur():
     cur_call = csdb.cursor(pymysql.cursors.DictCursor)
     return cur_call
 
+# 清求数据结构体 用于swagger测试接口
 class GroupDate:
     start_date: str
     group_no: int
